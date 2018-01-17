@@ -1,5 +1,6 @@
 """ Module contains account models """
 from django.db import models
+from django.db.models.signals import post_save
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager
 )
@@ -85,3 +86,26 @@ class User(AbstractBaseUser):
     def is_active(self):
         """ Is the user account active """
         return self.active
+
+
+class Profile(models.Model):
+    """ Model for the Merchant Profile """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    shop = models.CharField(max_length=120, blank=True)
+    location = models.CharField(max_length=120, blank=True, null=True)
+    merchant = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.shop
+
+    def is_merchant(self):
+        return self.merchant
+
+
+
+def profile_post_save_receiver(sender, instance, *args, **kwargs):
+    if not instance.profile_set.first():
+        instance.profile_set.create()
+
+
+post_save.connect(profile_post_save_receiver, sender=User)

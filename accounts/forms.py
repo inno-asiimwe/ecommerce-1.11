@@ -43,3 +43,5 @@ class UserAdminChangeForm(forms.ModelForm):
     def clean_password(self):
         """ Return initial password """
         return self.initial["password"]
+
+
