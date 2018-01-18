@@ -1,9 +1,14 @@
 """ Module contains account models """
 from django.db import models
-from django.db.models.signals import post_save
+from django.conf import settings
+from django.db.models.signals import post_save, pre_save
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager
 )
+
+from django.core.mail import send_mail
+from django.template.loader import get_template
+from ecommerce.utils import unique_key_generator
 
 
 class UserManager(BaseUserManager):
@@ -34,8 +39,7 @@ class UserManager(BaseUserManager):
         """ Create and save a super user """
         user_obj = self.create_user(email, password=password)
         user_obj.staff = True
-        user_obj.admin = True
-        user_obj.active = True
+        user_obj.admin = True 
         user_obj.save(using=self._db)
         return user_obj
 
@@ -43,7 +47,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     """Custom user model"""
     email = models.EmailField(max_length=255, unique=True)
-    active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -64,7 +68,7 @@ class User(AbstractBaseUser):
     def has_perm(self, perm, obj=None):
         """ Does the user have a specific permission"""
         return True
-    
+
     def has_module_perms(self, app_label):
         """Does the user have permissions to view the app 'app_label' """
         return True
@@ -82,10 +86,74 @@ class User(AbstractBaseUser):
         """ Is the user a member of staff """
         return self.staff
 
-    @property
-    def is_active(self):
-        """ Is the user account active """
-        return self.active
+
+class EmailActivation(models.Model):
+    user = models.ForeignKey(User)
+    email = models.EmailField()
+    key = models.CharField(max_length=120, blank=True, null=True)
+    activated = models.BooleanField(default=False)
+    forced_expired = models.BooleanField(default=False)
+    expires = models.IntegerField(default=7)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    update = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.email
+
+    def regenerate(self):
+        """ Regenerates activation key """
+        self.key = None
+        self.save()
+        if self.key is not None:
+            return True
+        return False
+
+    def send_activation(self):
+        """ Sends activation email """
+        if not self.activated and not self.forced_expired:
+            print(self.key)
+            print(self.email)
+            if self.key:
+                base_url = getattr(settings, 'BASE_URL', '127.0.0.1:8000')
+                key_path = self.key
+                path = "{base}/{path}".format(base=base_url, path=key_path)
+                context = {
+                    'path': path,
+                    'email': self.email
+                }
+                txt_ = get_template(
+                    "accounts/email/verify.txt").render(context)
+                html_ = get_template(
+                    "accounts/email/verify.html").render(context)
+                subject = 'Inno Ecommerce'
+                from_email = settings.DEFAULT_FROM_EMAIL
+                recepient_list = [self.email]
+                sent_mail = send_mail(
+                    subject,
+                    txt_,
+                    from_email,
+                    recepient_list,
+                    html_message=html_,
+                    fail_silently=False,
+                )
+                return sent_mail
+        return False
+
+
+def pre_save_email_activation(sender, instance, *args, **kwargs):
+    """ Auto generates activation key before saving EmailActivation object"""
+    if not instance.key:
+        instance.key = unique_key_generator(instance)
+
+
+def post_save_user_create_receiver(sender, instance, created, *args, **kwargs):
+    """ Sends Activation email after creating a user """
+    if created:
+        obj = EmailActivation.objects.create(user=instance, email=instance.email)
+        obj.send_activation()
+
+pre_save.connect(pre_save_email_activation, sender=EmailActivation)
+post_save.connect(post_save_user_create_receiver, sender=User)
 
 
 class Profile(models.Model):
@@ -102,10 +170,9 @@ class Profile(models.Model):
         return self.merchant
 
 
-
-def profile_post_save_receiver(sender, instance, *args, **kwargs):
+def post_save_user_receiver(sender, instance, *args, **kwargs):
+    """ Creates a user profile after saving a user object """
     if not instance.profile_set.first():
         instance.profile_set.create()
 
-
-post_save.connect(profile_post_save_receiver, sender=User)
+post_save.connect(post_save_user_receiver, sender=User)

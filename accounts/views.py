@@ -27,10 +27,11 @@ class LoginView(FormView):
         password = form.cleaned_data.get('password')
         user = authenticate(request, username=email, password=password)
         if user is not None:
-            login(request, user)
-            if is_safe_url(redirect_path, request.get_host()):
-                return redirect(redirect_path)
-            else:
+            if user.is_active:
+                login(request, user)
+                if is_safe_url(redirect_path, request.get_host()):
+                    return redirect(redirect_path)
                 return redirect('/')
+            return super(LoginView, self).form_invalid(form)
         return super(LoginView, self).form_invalid(form)
         
