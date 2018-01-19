@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# Default duration of activation key in days
+DEFAULT_ACTIVATION_DAYS = 7
+
 # Email configuration
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'innoshack@gmail.com'

@@ -1,16 +1,18 @@
 """ Module contains account models """
+from datetime import timedelta
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save, pre_save
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager
 )
-
+from django.utils import timezone
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from ecommerce.utils import unique_key_generator
 
-
+DEFAULT_ACTIVATION_DAYS = getattr(settings, 'DEFAULT_ACTIVATION_DAYS', 7)
 class UserManager(BaseUserManager):
     """ Model manager for our custom user model"""
     def create_user(self, email, password=None):
@@ -87,6 +89,25 @@ class User(AbstractBaseUser):
         return self.staff
 
 
+class EmailActivationQuerySet(models.query.QuerySet):
+    def confirmable(self):
+        now = timezone.now()
+        start_range = now - timedelta(days=DEFAULT_ACTIVATION_DAYS)
+        end_range = now
+        return self.filter(
+                    activated=False,
+                    forced_expired=False
+                    ).filter(
+                        timestamp__gt=start_range,
+                        timestamp__lte=now
+                    )
+
+
+class EmailActivationManager(models.Manager):
+    def get_queryset(self):
+        return EmailActivationQuerySet(self.model, using=self._db)
+
+
 class EmailActivation(models.Model):
     user = models.ForeignKey(User)
     email = models.EmailField()
@@ -96,6 +117,8 @@ class EmailActivation(models.Model):
     expires = models.IntegerField(default=7)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now_add=True)
+
+    objects = EmailActivationManager()
 
     def __str__(self):
         return self.user.email
@@ -108,6 +131,22 @@ class EmailActivation(models.Model):
             return True
         return False
 
+    def can_activate(self):
+        """Checks whether a given user can be activated or not"""
+        qs = EmailActivation.objects.filter(pk=self.pk).confirmable()
+        return qs.exists()
+
+    def activate(self):
+        """Activate a user account"""
+        if self.can_activate():
+            user = self.user
+            user.is_active = True
+            user.save()
+            self.activated = True
+            self.save()
+            return True
+        return False
+
     def send_activation(self):
         """ Sends activation email """
         if not self.activated and not self.forced_expired:
@@ -115,8 +154,9 @@ class EmailActivation(models.Model):
             print(self.email)
             if self.key:
                 base_url = getattr(settings, 'BASE_URL', '127.0.0.1:8000')
-                key_path = self.key
-                path = "{base}/{path}".format(base=base_url, path=key_path)
+                key_path = reverse("account:email-activate",
+                                   kwargs={'key': self.key})
+                path = "{base}{path}".format(base=base_url, path=key_path)
                 context = {
                     'path': path,
                     'email': self.email
@@ -149,7 +189,8 @@ def pre_save_email_activation(sender, instance, *args, **kwargs):
 def post_save_user_create_receiver(sender, instance, created, *args, **kwargs):
     """ Sends Activation email after creating a user """
     if created:
-        obj = EmailActivation.objects.create(user=instance, email=instance.email)
+        obj = EmailActivation.objects.create(
+            user=instance, email=instance.email)
         obj.send_activation()
 
 pre_save.connect(pre_save_email_activation, sender=EmailActivation)

@@ -1,9 +1,31 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib import messages
 from django.utils.http import is_safe_url
-from django.views.generic import CreateView, FormView
-from .models import User, Profile
+from django.views.generic import CreateView, FormView, View
+from .models import User, Profile, EmailActivation
 from .forms import RegisterForm, LoginForm
+
+
+class AccountEmailActivateView(View):
+    def get(self, request, key, *args, **kwargs):
+        qs = EmailActivation.objects.filter(key__iexact=key)
+        confirm_qs = qs.confirmable()
+        if confirm_qs.count() == 1:
+            obj = confirm_qs.first()
+            obj.activate()
+            messages.success(request, "your email has been confirmed.")
+            return redirect("login")
+        activated_qs = qs.filter(activated=True)
+        if activated_qs.exists():
+            msg = "Already activated login"
+            messages.success(request, msg)
+            return redirect("login")
+        return render(request, 'accounts/registration/activation-error', {})
+
+    def post(self, request, key, *args, **kwargs):
+        # create form to receive an email
+        pass
 
 
 class RegisterView(CreateView):
