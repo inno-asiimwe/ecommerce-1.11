@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.utils.http import is_safe_url
 from django.views.generic import CreateView, FormView, View
 from django.views.generic.edit import FormMixin
+from ecommerce.mixins import NextUrlMixin, RequestFormAttachMixin
 from .models import User, Profile, EmailActivation
 from .forms import RegisterForm, LoginForm, ReactivateEmailForm
 
@@ -64,26 +65,14 @@ class RegisterView(CreateView):
     success_url = '/login/'
 
 
-class LoginView(FormView):
+class LoginView(RequestFormAttachMixin, NextUrlMixin, FormView):
     """ View Logs in a user """
     form_class = LoginForm
     template_name = 'accounts/login.html'
     success_url = '/'
+    de
 
     def form_valid(self, form):
-        request = self.request
-        next_ = request.GET.get('next')
-        next_post = request.POST.get('next')
-        redirect_path = next_ or next_post or None
-        email = form.cleaned_data.get('email')
-        password = form.cleaned_data.get('password')
-        user = authenticate(request, username=email, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                if is_safe_url(redirect_path, request.get_host()):
-                    return redirect(redirect_path)
-                return redirect('/')
-            return super(LoginView, self).form_invalid(form)
-        return super(LoginView, self).form_invalid(form)
-        
+        next_path = self.get_next_url()
+        return redirect(next_path)
+  
