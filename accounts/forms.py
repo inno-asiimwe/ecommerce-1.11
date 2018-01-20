@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
-from .models import User
+from .models import User, EmailActivation
 
 
 class UserAdminCreationForm(forms.ModelForm):
@@ -85,3 +85,15 @@ class LoginForm(forms.Form):
         widget=forms.EmailInput(attrs={'class': 'form-control'}))
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+class ReactivateEmailForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form_control'})
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        qs = EmailActivation.objects.email_exists(email)
+        if not qs.exists():
+            raise forms.ValidationError("This email does not exist")
+        return email
