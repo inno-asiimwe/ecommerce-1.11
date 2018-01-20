@@ -47,13 +47,19 @@ class UserAdminChangeForm(forms.ModelForm):
 
 class RegisterForm(forms.ModelForm):
     """ Form for registering a user """
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password1 = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     password2 = forms.CharField(
-        label='Confirm Password', widget=forms.PasswordInput)
+        label='Confirm Password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = User
         fields = ('email',)
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control'})
+        }
 
     def clean_password2(self):
         """ Ensure password match """
@@ -75,6 +81,7 @@ class RegisterForm(forms.ModelForm):
 
 class LoginForm(forms.Form):
     """ Form handles login """
-    email = forms.EmailField(label='Email')
-    password = forms.CharField(widget=forms.PasswordInput)
-    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}))

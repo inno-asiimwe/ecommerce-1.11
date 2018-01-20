@@ -205,7 +205,7 @@ class Profile(models.Model):
     merchant = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.shop
+        return self.user.email
 
     def is_merchant(self):
         return self.merchant
