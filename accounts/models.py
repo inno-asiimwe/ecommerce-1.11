@@ -14,6 +14,8 @@ from django.template.loader import get_template
 from ecommerce.utils import unique_key_generator
 
 DEFAULT_ACTIVATION_DAYS = getattr(settings, 'DEFAULT_ACTIVATION_DAYS', 7)
+
+
 class UserManager(BaseUserManager):
     """ Model manager for our custom user model"""
     def create_user(self, email, password=None):
@@ -42,7 +44,7 @@ class UserManager(BaseUserManager):
         """ Create and save a super user """
         user_obj = self.create_user(email, password=password)
         user_obj.staff = True
-        user_obj.admin = True 
+        user_obj.admin = True
         user_obj.save(using=self._db)
         return user_obj
 
@@ -91,7 +93,9 @@ class User(AbstractBaseUser):
 
 
 class EmailActivationQuerySet(models.query.QuerySet):
+    """ Email activation custom queryset """
     def confirmable(self):
+        """"""
         now = timezone.now()
         start_range = now - timedelta(days=DEFAULT_ACTIVATION_DAYS)
         end_range = now
