@@ -34,7 +34,7 @@ class AccountEmailActivateView(FormMixin, View):
         return render(
             request, 'accounts/registration/activation-error.html', context)
 
-    def post(self, request, key, *args, **kwargs):
+    def post(self, request, key=None, *args, **kwargs):
         # create form to receive an email for reactivation
         form = self.get_form()
         if form.is_valid():
@@ -58,7 +58,6 @@ class AccountEmailActivateView(FormMixin, View):
             'accounts/registration/activation-error.html', context)
 
 
-
 class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = 'accounts/register.html'
@@ -70,9 +69,9 @@ class LoginView(RequestFormAttachMixin, NextUrlMixin, FormView):
     form_class = LoginForm
     template_name = 'accounts/login.html'
     success_url = '/'
-    de
+    default_next = '/'
 
     def form_valid(self, form):
         next_path = self.get_next_url()
         return redirect(next_path)
-  
+

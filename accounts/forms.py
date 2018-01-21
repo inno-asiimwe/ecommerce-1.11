@@ -1,4 +1,6 @@
 from django import forms
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth import login, authenticate
 from .models import User, EmailActivation
@@ -95,6 +97,29 @@ class LoginForm(forms.Form):
         data = self.cleaned_data
         email = data.get('email')
         password = data.get('password')
+        qs = User.objects.filter(email=email)
+        if qs.exists():
+            qs_inactive = qs.filter(is_active=False).exists()
+            if qs_inactive:
+                resend_link = reverse("account:resend-email")
+                reconfirm_msg = """
+                Go to <a href={resend_link}>Resend activation link</a>
+                """.format(resend_link=resend_link)
+                confirm_email_qs = EmailActivation.objects.filter(email=email)
+                confirmable_email = confirm_email_qs.confirmable().exists()
+                if confirmable_email:
+                    msg1 = """ 
+                    Check your inbox for confirmation
+                    email.
+                    """ + reconfirm_msg
+                    raise forms.ValidationError(mark_safe(msg1))
+                confirm_email_exists = EmailActivation.objects.email_exists(
+                    email=email).exists()
+                if confirm_email_exists:
+                    msg2 = "Please reactivate your email. " + reconfirm_msg
+                    raise forms.ValidationError(mark_safe(msg2))
+                if not confirmable_email and not confirm_email_exists:
+                    raise forms.ValidationError("User is inactive")
         user = authenticate(request, username=email, password=password)
         if user is None:
             raise forms.ValidationError("Invalid logins")
