@@ -1,9 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
+{% url 'merch_login' as merchant_login_url %}
+{% url 'merch_register' as merchant_register_url %}
+{% if request.path == merchant_login_url %}
+    <h3 class="text-center">Login to Merchant account</h3>
+{% else %}
+    <h3 class="text-center">Login to Buyer account</h3>
+{% endif %}
 <form method='POST'> {% csrf_token %}
     <div class="form-group">
         {{ form }}
     </div>
     <button class="btn btn-success" type='submit'>Submit</button>
 </form>
+{% if request.path == merchant_login_url %}
+<div class="my-3 text-center">
+    <p>You can register for Merchant account <a href="{{merchant_register_url}}">here</a></p>
+</div>
+{% endif %}
 {% endblock %}
