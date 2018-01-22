@@ -10,6 +10,7 @@
     {% block base_head %}{% endblock %}
   </head>
   <body>
+    {% include "base/nav.html"  with brand_name="Inno's Ecommerce"%}
     <div class="container">
       {% if messages %}
       <div class="alert alert-success messages">
