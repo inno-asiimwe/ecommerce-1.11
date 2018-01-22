@@ -1,3 +1,15 @@
+.DS_STORE
+
+# Virtualenv related
+bin/
+include/
+pip-selfcheck.json
+
+# Django related 
+ecommerce/settings/local.py
+# static-cdn/  # any collected static files
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
