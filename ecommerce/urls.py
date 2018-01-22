@@ -24,7 +24,9 @@ from accounts.views import RegisterView, LoginView
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^register', RegisterView.as_view(), name='register'),
+    url(r'^merchant/register', RegisterView.as_view(), name='merch_register'),
     url(r'^login', LoginView.as_view(), name='login'),
+    url(r'^merchant/login', LoginView.as_view(), name='merch_login'),
     url(r'^logout', LogoutView.as_view(), name='logout'),
     url(r'^account/', include("accounts.urls", namespace='account')),
     url(r'^accounts/', include("accounts.passwords.urls")),

@@ -215,15 +215,12 @@ post_save.connect(post_save_user_create_receiver, sender=User)
 class Profile(models.Model):
     """ Model for the Merchant Profile """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    shop = models.CharField(max_length=120, blank=True)
+    full_name = models.CharField(max_length=120, blank=True)
     location = models.CharField(max_length=120, blank=True, null=True)
-    merchant = models.BooleanField(default=False)
+    is_merchant = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.email
-
-    def is_merchant(self):
-        return self.merchant
 
 
 def post_save_user_receiver(sender, instance, *args, **kwargs):

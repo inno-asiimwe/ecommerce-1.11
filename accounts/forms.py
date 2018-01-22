@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth import login, authenticate
-from .models import User, EmailActivation
+from .models import User, EmailActivation, Profile
 
 
 class UserAdminCreationForm(forms.ModelForm):
@@ -63,6 +63,11 @@ class RegisterForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'})
         }
 
+    def __init__(self, request, *args, **kwargs):
+        self.request = request
+        super(RegisterForm, self).__init__(*args, **kwargs)
+
+
     def clean_password2(self):
         """ Ensure password match """
         password1 = self.cleaned_data.get('password1')
@@ -73,11 +78,17 @@ class RegisterForm(forms.ModelForm):
 
     def save(self, commit=True):
         """ Hash Password """
+        request = self.request
         user = super(RegisterForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         user.is_active = False
         if commit:
             user.save()
+        # handle a user registering as a merchant
+        if request.path == '/merchant/register':
+            user_profile = Profile.objects.filter(user=user).first()
+            user_profile.is_merchant = True
+            user_profile.save()
         return user
 
 
@@ -91,7 +102,7 @@ class LoginForm(forms.Form):
     def __init__(self, request, *args, **kwargs):
         self.request = request
         super(LoginForm, self).__init__(*args, **kwargs)
-    
+
     def clean(self):
         request = self.request
         data = self.cleaned_data
@@ -123,6 +134,10 @@ class LoginForm(forms.Form):
         user = authenticate(request, username=email, password=password)
         if user is None:
             raise forms.ValidationError("Invalid logins")
+        # raise an error when a regular user signs in as a merchant
+        if request.path == '/merchant/login':
+            if not user.profile_set.first().is_merchant:
+                raise forms.ValidationError('Please use a merchant account to login')
         login(request, user)
         self.user = user
         return data
@@ -139,3 +154,39 @@ class ReactivateEmailForm(forms.Form):
         if not qs.exists():
             raise forms.ValidationError("This email does not exist")
         return email
+
+
+# # Merchant Related forms
+# class MerchantRegisterForm(forms.ModelForm):
+#     """ Form for registering a user """
+#     password1 = forms.CharField(
+#         label='Password',
+#         widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+#     password2 = forms.CharField(
+#         label='Confirm Password',
+#         widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+#     class Meta:
+#         model = User
+#         fields = ('email',)
+#         widgets = {
+#             'email': forms.EmailInput(attrs={'class': 'form-control'})
+#         }
+
+#     def clean_password2(self):
+#         """ Ensure password match """
+#         password1 = self.cleaned_data.get('password1')
+#         password2 = self.cleaned_data.get('password2')
+#         if password1 and password2 and password1 != password2:
+#             raise forms.ValidationError('passwords do not match')
+#         return password2
+
+#     def save(self, commit=True):
+#         """ Hash Password """
+#         user = super(RegisterForm, self).save(commit=False)
+#         user.set_password(self.cleaned_data["password1"])
+#         user.profile_set.create(is_merchant=True)
+#         user.is_active = False
+#         if commit:
+#             user.save()
+#         return user

@@ -58,7 +58,7 @@ class AccountEmailActivateView(FormMixin, View):
             'accounts/registration/activation-error.html', context)
 
 
-class RegisterView(CreateView):
+class RegisterView(RequestFormAttachMixin, CreateView):
     form_class = RegisterForm
     template_name = 'accounts/register.html'
     success_url = '/login/'
