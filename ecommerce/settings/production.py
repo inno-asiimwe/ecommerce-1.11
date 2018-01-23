@@ -37,6 +37,9 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'Python ecommerce <innoshack@gmail.com>'
 BASE_URL = 'https://ecommerce111.herokuapp.com/'
 
+# Default urls
+LOGOUT_REDIRECT_URL = '/'
+
 # Application definition
 
 INSTALLED_APPS = [
