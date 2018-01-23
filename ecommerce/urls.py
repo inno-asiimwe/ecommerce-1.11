@@ -19,7 +19,8 @@ from django.conf.urls.static import static
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import LogoutView
-from accounts.views import RegisterView, LoginView
+from accounts.views import RegisterView, LoginView, MerchantDashboardView
+
 from .views import HomeView
 
 urlpatterns = [
@@ -29,6 +30,8 @@ urlpatterns = [
     url(r'^merchant/register', RegisterView.as_view(), name='merch_register'),
     url(r'^login', LoginView.as_view(), name='login'),
     url(r'^merchant/login', LoginView.as_view(), name='merch_login'),
+    url(r'^merchant/dashboard',
+        MerchantDashboardView.as_view(), name='merch_dashboard'),
     url(r'^logout', LogoutView.as_view(), name='logout'),
     url(r'^account/', include("accounts.urls", namespace='account')),
     url(r'^accounts/', include("accounts.passwords.urls")),

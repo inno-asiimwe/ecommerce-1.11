@@ -137,7 +137,10 @@ class LoginForm(forms.Form):
         # raise an error when a regular user signs in as a merchant
         if request.path == '/merchant/login':
             if not user.profile_set.first().is_merchant:
-                raise forms.ValidationError('Please use a merchant account to login')
+                msg = """
+                Please use a merchant account to login
+                """
+                raise forms.ValidationError(msg)
         login(request, user)
         self.user = user
         return data
@@ -156,37 +159,18 @@ class ReactivateEmailForm(forms.Form):
         return email
 
 
-# # Merchant Related forms
-# class MerchantRegisterForm(forms.ModelForm):
-#     """ Form for registering a user """
-#     password1 = forms.CharField(
-#         label='Password',
-#         widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-#     password2 = forms.CharField(
-#         label='Confirm Password',
-#         widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+class ProfileUpdateForm(forms.ModelForm):
+    """ Form for updating a user profile """
 
-#     class Meta:
-#         model = User
-#         fields = ('email',)
-#         widgets = {
-#             'email': forms.EmailInput(attrs={'class': 'form-control'})
-#         }
+    class Meta:
+        model = Profile
+        fields = ('full_name', 'location')
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'class': 'form-control'})
+        }
+        required = ('full_name', 'location')
 
-#     def clean_password2(self):
-#         """ Ensure password match """
-#         password1 = self.cleaned_data.get('password1')
-#         password2 = self.cleaned_data.get('password2')
-#         if password1 and password2 and password1 != password2:
-#             raise forms.ValidationError('passwords do not match')
-#         return password2
-
-#     def save(self, commit=True):
-#         """ Hash Password """
-#         user = super(RegisterForm, self).save(commit=False)
-#         user.set_password(self.cleaned_data["password1"])
-#         user.profile_set.create(is_merchant=True)
-#         user.is_active = False
-#         if commit:
-#             user.save()
-#         return user
+    def __init__(self, request, *args, **kwargs):
+        self.request = request
+        super(ProfileUpdateForm, self).__init__(*args, **kwargs)

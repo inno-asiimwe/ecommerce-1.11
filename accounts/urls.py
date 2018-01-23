@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 from .views import (
     AccountEmailActivateView,
+    ProfileUpdateView
     )
 
 urlpatterns = [
@@ -10,5 +11,8 @@ urlpatterns = [
         name='email-activate'),
     url(r'^resend-email/$',
         AccountEmailActivateView.as_view(),
-        name='resend-email')
+        name='resend-email'),
+    url(r'^update-profile/$',
+        ProfileUpdateView.as_view(),
+        name='profile-update')
 ]
