@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block base_head %}
+  <link rel="stylesheet" href="{% static "css/main" %}">
+{% endblock %}
+{% block content %}
+    <h1>{{title}}</h1>
+    <p>{{content}}</p>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+{% url 'merch_register' as merchant_register_url %}
+{% if request.path == merchant_register_url %}
+    <h2>Merchant Registration</h2>
+{% else %}
+    <h2>User Registration</h2>
+{% endif %}
+<form method='POST'> {% csrf_token %}
+    <div class="form-group">
+        {{ form }}
+    </div>
+    <button class="btn btn-success" type='submit'>Submit</button>
+</form>
+{% endblock %}
