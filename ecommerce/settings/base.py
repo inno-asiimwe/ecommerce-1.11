@@ -39,6 +39,9 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'Python ecommerce <innoshack@gmail.com>'
 BASE_URL = '127.0.0.1:8000'
 
+# Default urls
+LOGOUT_URL_REDIRECT = '/'
+
 # Application definition
 
 INSTALLED_APPS = [

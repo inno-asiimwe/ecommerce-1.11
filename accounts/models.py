@@ -222,6 +222,12 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.email
 
+    def completed(self):
+        """ Method checks if the user completed the profile """
+        if not self.full_name or not self.location:
+            return False
+        return True
+
 
 def post_save_user_receiver(sender, instance, *args, **kwargs):
     """ Creates a user profile after saving a user object """

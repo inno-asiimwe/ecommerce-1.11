@@ -1,12 +1,17 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.urls import reverse, reverse_lazy
 from django.utils.http import is_safe_url
-from django.views.generic import CreateView, FormView, View
+from django.http import HttpResponse
+from django.views.generic import CreateView, FormView, View, UpdateView
 from django.views.generic.edit import FormMixin
 from ecommerce.mixins import NextUrlMixin, RequestFormAttachMixin
 from .models import User, Profile, EmailActivation
-from .forms import RegisterForm, LoginForm, ReactivateEmailForm
+from .forms import (RegisterForm,
+                    LoginForm,
+                    ReactivateEmailForm,
+                    ProfileUpdateForm)
 
 
 class AccountEmailActivateView(FormMixin, View):
@@ -71,7 +76,52 @@ class LoginView(RequestFormAttachMixin, NextUrlMixin, FormView):
     success_url = '/'
     default_next = '/'
 
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        path = self.request.path
+
+        if path == reverse('merch_login') and user.is_authenticated():
+            if user.profile_set.first().is_merchant:
+                return redirect(reverse('merch_dashboard'))
+            msg = """
+            please login in with a merchant account to access this section.
+            """
+            messages.error(self.request, msg)
+            return self.render_to_response(self.get_context_data())
+        return self.render_to_response(self.get_context_data())
+
     def form_valid(self, form):
         next_path = self.get_next_url()
+        if self.request.path == reverse('merch_login'):
+            return redirect(reverse('merch_dashboard'))
         return redirect(next_path)
 
+
+class ProfileUpdateView(RequestFormAttachMixin, UpdateView):
+    """ View for updating profile """
+    form_class = ProfileUpdateForm
+    template_name = 'accounts/form.html'
+    success_url = reverse_lazy('merch_dashboard')
+
+    def get_object(self, *args, **kwargs):
+        user = self.request.user
+        profile = Profile.objects.filter(user=user).first()
+        return profile
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Profile Update'
+        context['message'] = 'Update your profile before continuing!!'
+        return context
+
+
+class MerchantDashboardView(View):
+    """ View for the Merchant Dashboard """
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        if user is not None:
+            profile = user.profile_set.first()
+            if not profile.completed():
+                return redirect(reverse('account:profile-update'))
+            return render(self.request, 'merchant/dashboard.html')
