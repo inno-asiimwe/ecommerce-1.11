@@ -1,9 +1,0 @@
-Hello, 
-Thank your for registering at Inno's Ecommerce site with {{ email }}.
-
-Please follow {{ path }} to verify your email.
-
-Thereafter you will be able to login.
-
-Regards,
-Team @ inno's ecommerce
