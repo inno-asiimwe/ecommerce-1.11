@@ -1,5 +1,8 @@
 {% extends 'base_no_nav.html' %}
 {% block content %}
+{% url 'home' as home_url %}
+{% url 'logout' as logout_url %}
+{% url 'password_change' as password_change_url %}
 <section id="sideMenu">
     <nav>
       <a href="#" class="active"><i class="fa fa-home" aria-hidden="true"></i> Dashboard</a>
@@ -8,11 +11,13 @@
       <a href="#"><i class="fa fa-bookmark-o" aria-hidden="true"></i>
          Categories</a>
       <a href="#"><i class="fa fa-calendar" aria-hidden="true"></i>
-         Item</a>
+         Orders</a>
       <a href="#"><i class="fa fa-user" aria-hidden="true"></i>
-         Item</a>
+        Sales</a>
       <a href="#"><i class="fa fa-cog" aria-hidden="true"></i>
-         Item</a>
+         Settings</a>
+      <a href={{ home_url }}><i class="fa fa-cart-plus" aria-hidden="true"></i>
+            To Buyer site</a>
     </nav>
   </section>
 <header>
@@ -21,7 +26,7 @@
     <input type="text" name="" value="">
   </div>
   <div class="user-area">
-    <a href="#" class="add">+ add</a>
+    <a href="#" class="add">{{request.user}}</a>
     <a href="#" class="notifications">
       <i class="fa fa-bell-o" aria hidden="true"></i>
       <span class="circle">3</span>
@@ -33,8 +38,14 @@
     <a href="#">
       <div class="user-img"></div>
       <i class="fa fa-caret-down" aria-hidden="true"></i>
+      <div class="dropdown-content">
+            <a href="#">Profile</a>
+            <a href={{password_change_url}}>Change Password</a>
+            <a href={{logout_url}}>Logout</a>
+      </div>
     </a>
   </div>
 </header>
+
 
 {% endblock %}

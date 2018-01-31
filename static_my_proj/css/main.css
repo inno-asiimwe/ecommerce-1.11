@@ -168,6 +168,8 @@ header {
   header .user-area {
     display: inline-block;
     float: right; }
+    header .user-area:hover .dropdown-content {
+      display: block; }
     header .user-area a {
       text-decoration: none;
       display: inline-block;
@@ -209,5 +211,20 @@ header {
     header .user-area .fa-caret-down {
       position: relative;
       top: -8px; }
+    header .user-area .dropdown-content {
+      display: none;
+      position: absolute;
+      min-width: 80px;
+      z-index: 1;
+      right: 10px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); }
+      header .user-area .dropdown-content a {
+        text-decoration: none;
+        display: block;
+        padding: 10px;
+        font-size: 0.8rem;
+        font-weight: 100; }
+        header .user-area .dropdown-content a:hover {
+          background: #92CF48; }
 
 /*# sourceMappingURL=main.css.map */
