@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.utils.http import is_safe_url
@@ -115,8 +116,9 @@ class ProfileUpdateView(RequestFormAttachMixin, UpdateView):
         return context
 
 
-class MerchantDashboardView(View):
+class MerchantDashboardView(LoginRequiredMixin, View):
     """ View for the Merchant Dashboard """
+    login_url = reverse_lazy('merch_login')
 
     def get(self, *args, **kwargs):
         user = self.request.user
