@@ -1,0 +1,232 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700");
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+a,
+abbr,
+acronym,
+address,
+applet,
+article,
+aside,
+audio,
+b,
+big,
+blockquote,
+body,
+canvas,
+caption,
+center,
+cite,
+code,
+dd,
+del,
+details,
+dfn,
+div,
+dl,
+dt,
+em,
+embed,
+fieldset,
+figcaption,
+figure,
+footer,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+header,
+hgroup,
+html,
+i,
+iframe,
+img,
+ins,
+kbd,
+label,
+legend,
+li,
+mark,
+menu,
+nav,
+object,
+ol,
+output,
+p,
+pre,
+q,
+ruby,
+s,
+samp,
+section,
+small,
+span,
+strike,
+strong,
+sub,
+summary,
+sup,
+table,
+tbody,
+td,
+tfoot,
+th,
+thead,
+time,
+tr,
+tt,
+u,
+ul,
+var,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline; }
+
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block; }
+
+body {
+  line-height: 1; }
+
+ol,
+ul {
+  list-style: none; }
+
+blockquote,
+q {
+  quotes: none; }
+
+blockquote:after,
+blockquote:before,
+q:after,
+q:before {
+  content: '';
+  content: none; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+* {
+  box-sizing: border-box; }
+
+body {
+  font-family: roboto, sans-serif;
+  background: #EAEDF3; }
+
+#sideMenu {
+  background: #282639;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 200px; }
+  #sideMenu nav {
+    padding-top: 100px; }
+    #sideMenu nav a {
+      display: block;
+      text-decoration: none;
+      padding: 15px 30px;
+      font-weight: 300; }
+      #sideMenu nav a .fa {
+        padding-right: 10px; }
+
+header {
+  margin-left: 280px;
+  background: #fff;
+  padding: 10px; }
+  header .search-area {
+    display: inline-block;
+    width: 50%; }
+    header .search-area .fa {
+      color: #6C7882; }
+    header .search-area input[type="text"] {
+      background: transparent;
+      border: none;
+      font-size: 1.3rem;
+      font-weight: 100;
+      color: #92CF48;
+      padding: 10px;
+      width: 80%; }
+  header .user-area {
+    display: inline-block;
+    float: right; }
+    header .user-area:hover .dropdown-content {
+      display: block; }
+    header .user-area a {
+      text-decoration: none;
+      display: inline-block;
+      padding-right: 10px;
+      vertical-align: top;
+      height: 30px; }
+      header .user-area a.add {
+        padding-top: 10px;
+        font-size: 12px;
+        font-weight: 500; }
+      header .user-area a.notifications {
+        padding-top: 5px;
+        position: relative;
+        font-size: 20px; }
+        header .user-area a.notifications .fa {
+          display: inline-block !important; }
+        header .user-area a.notifications .circle {
+          background: red;
+          display: inline-block;
+          height: 15px;
+          width: 15px;
+          font-size: 12px;
+          text-align: center;
+          border-radius: 50%;
+          position: absolute;
+          top: 3px;
+          left: 7px; }
+    header .user-area .user-img {
+      background: url(https://pbs.twimg.com/profile_images/914775571342569472/yl4Msdmo_400x400.jpg) no-repeat center center;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+      width: 30px;
+      height: 30px;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 10px; }
+    header .user-area .fa-caret-down {
+      position: relative;
+      top: -8px; }
+    header .user-area .dropdown-content {
+      display: none;
+      position: absolute;
+      min-width: 80px;
+      z-index: 1;
+      right: 10px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); }
+      header .user-area .dropdown-content a {
+        text-decoration: none;
+        display: block;
+        padding: 10px;
+        font-size: 0.8rem;
+        font-weight: 100; }
+        header .user-area .dropdown-content a:hover {
+          background: #92CF48; }
+
+/*# sourceMappingURL=main.css.map */
